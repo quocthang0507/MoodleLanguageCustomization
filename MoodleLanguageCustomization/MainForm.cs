@@ -14,13 +14,13 @@ namespace MoodleLanguageCustomization
 			InitializeComponent();
 		}
 
-		private void btnBrowse_Click(object sender, EventArgs e)
+		private void btnBrowsePHP_Click(object sender, EventArgs e)
 		{
-			if (openFileDialog.ShowDialog() == DialogResult.OK)
+			if (openPHPFileDialog.ShowDialog() == DialogResult.OK)
 			{
 				try
 				{
-					var filePath = openFileDialog.FileName;
+					var filePath = openPHPFileDialog.FileName;
 					using (StreamReader reader = new StreamReader(filePath))
 					{
 						string content = reader.ReadToEnd();
@@ -28,9 +28,9 @@ namespace MoodleLanguageCustomization
 						strings = strings.Select(str => str.Trim()).ToList();
 						if (strings[0].Contains("<?php"))
 							strings.RemoveAt(0);
-						lbxSource.DataSource = strings;
+						listView.DataSource = strings;
 					}
-					tbxInputPath.Text = filePath;
+					tbxPHPPath.Text = filePath;
 				}
 				catch (Exception ex)
 				{
@@ -39,19 +39,19 @@ namespace MoodleLanguageCustomization
 			}
 		}
 
-		private void btnExport_Click(object sender, EventArgs e)
+		private void btnExportExcel_Click(object sender, EventArgs e)
 		{
-			if (lbxSource.DataSource == null || tbxInputPath.Text == null)
+			if (listView.DataSource == null || tbxPHPPath.Text == null)
 				return;
 
-			string filename = Path.GetFileNameWithoutExtension(tbxInputPath.Text);
-			saveFileDialog.FileName = filename + ".xlsx";
-			List<string> strings = lbxSource.DataSource as List<string>;
-			if (saveFileDialog.ShowDialog() == DialogResult.OK)
+			string filename = Path.GetFileNameWithoutExtension(tbxPHPPath.Text);
+			saveExcelFileDialog.FileName = filename + ".xlsx";
+			List<string> strings = listView.DataSource as List<string>;
+			if (saveExcelFileDialog.ShowDialog() == DialogResult.OK)
 			{
 				try
 				{
-					var filePath = saveFileDialog.FileName;
+					var filePath = saveExcelFileDialog.FileName;
 					using (ExcelPackage excel = new ExcelPackage())
 					{
 						var workSheet = excel.Workbook.Worksheets.Add(filename + ".php");
@@ -81,6 +81,28 @@ namespace MoodleLanguageCustomization
 					MessageBox.Show(ex.Message, "Error");
 				}
 			}
+		}
+
+		private void btnBrowseExcel_Click(object sender, EventArgs e)
+		{
+			if (openExcelFileDialog.ShowDialog() == DialogResult.OK)
+			{
+				try
+				{
+					var filePath = openExcelFileDialog.FileName;
+					tbxExcelPath.Text = filePath;
+					
+				}
+				catch (Exception ex)
+				{
+					MessageBox.Show(ex.Message, "Error");
+				}
+			}
+		}
+
+		private void btnExportPHP_Click(object sender, EventArgs e)
+		{
+
 		}
 	}
 }
