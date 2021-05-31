@@ -12,6 +12,9 @@ namespace MoodleLanguageCustomization
 	public partial class MainForm : Form
 	{
 		private List<PhpString> dataSource;
+		private string csv = "files and folders.csv";
+		private double percent = 0f;
+		private List<KeyValuePair<string, string>> folders;
 
 		public MainForm()
 		{
@@ -24,11 +27,14 @@ namespace MoodleLanguageCustomization
 			{
 				try
 				{
-					var filePath = openPHPFileDialog.FileName;
-					tbxPHPPath.Text = filePath;
-					dataSource = new List<PhpString>();
-					dataSource = ReadPhpStrings(filePath);
-					gridView.DataSource = dataSource;
+					Task.Run(() =>
+					{
+						var filePath = openPHPFileDialog.FileName;
+						tbxPHPPath.Text = filePath;
+						dataSource = new List<PhpString>();
+						dataSource = ReadPhpStrings(filePath);
+						gridView.Invoke((MethodInvoker)(() => gridView.DataSource = dataSource));
+					});
 				}
 				catch (Exception ex)
 				{
@@ -50,9 +56,12 @@ namespace MoodleLanguageCustomization
 				{
 					try
 					{
-						var filePath = saveExcelFileDialog.FileName;
-						ExportToExcel(filePath, dataSource);
-						MessageBox.Show("Exported to Excel file", "Successfully");
+						Task.Run(() =>
+						{
+							var filePath = saveExcelFileDialog.FileName;
+							ExportToExcel(filePath, dataSource);
+							MessageBox.Show("Exported to Excel file", "Successfully");
+						});
 					}
 					catch (Exception ex)
 					{
@@ -65,22 +74,36 @@ namespace MoodleLanguageCustomization
 				var files = dataSource.Select(str => str.Filename);
 				if (folderBrowserDialog.ShowDialog() == DialogResult.OK)
 				{
-					var folderPath = folderBrowserDialog.SelectedPath;
-					foreach (var file in files)
+					try
 					{
-						string filename = Path.GetFileNameWithoutExtension(file);
-						var strings = dataSource.Where(str => str.Filename == filename).ToList();
-						string filePath = Path.Combine(folderPath, filename + ".xlsx");
-						try
+						ReadCsvFile();
+						Task.Run(() =>
 						{
-							ExportToExcel(filePath, strings);
-						}
-						catch (Exception ex)
-						{
-							MessageBox.Show(ex.Message, "Error");
-						}
+							var folderPath = folderBrowserDialog.SelectedPath;
+							percent = 0f;
+							double interval = 100f / files.Count();
+							foreach (var filename in files)
+							{
+								var strings = dataSource.Where(str => str.Filename == filename).ToList();
+								var found = folders.Where(f => f.Key.Equals(filename + ".php")).ToList();
+								if (found != null && found.Count() > 0)
+								{
+									string folderName = found[0].Value;
+									string newFolderPath = Path.Combine(folderPath, folderName);
+									Directory.CreateDirectory(newFolderPath);
+									string newFilePath = Path.Combine(newFolderPath, filename + ".xlsx");
+									ExportToExcel(newFilePath, strings);
+									percent += interval;
+									lblPercent.Invoke((MethodInvoker)(() => lblPercent.Text = $"{percent:0.##}%"));
+								}
+							}
+							MessageBox.Show("Exported to Excel files", "Successfully");
+						});
 					}
-					MessageBox.Show("Exported to Excel files", "Successfully");
+					catch (Exception ex)
+					{
+						MessageBox.Show(ex.Message, "Error");
+					}
 				}
 			}
 		}
@@ -94,7 +117,7 @@ namespace MoodleLanguageCustomization
 				for (int i = 0; i < strings.Count; i++)
 				{
 					string line = strings[i].String;
-					string[] arr = line.Split('=').Select(str => str.Trim()).ToArray();
+					string[] arr = line.Split(new string[] { " = " }, StringSplitOptions.RemoveEmptyEntries).Select(str => str.Trim()).ToArray();
 					workSheet_en.Cells[i + 1, 1].Value = "$string" + arr[0];
 					workSheet_vi.Cells[i + 1, 1].Value = "$string" + arr[0];
 					workSheet_en.Cells[i + 1, 2].Value = arr[1];
@@ -149,10 +172,14 @@ namespace MoodleLanguageCustomization
 					{
 						string[] phpFiles = Directory.GetFiles(folderPath, "*.php");
 						dataSource = new List<PhpString>();
+						double interval = 100f / phpFiles.Length;
+						percent = 0f;
 						foreach (var file in phpFiles)
 						{
 							var strings = ReadPhpStrings(file);
 							dataSource.AddRange(strings);
+							percent += interval;
+							lblPercent.Invoke((MethodInvoker)(() => lblPercent.Text = $"{percent:0.##}%"));
 						}
 						gridView.Invoke((MethodInvoker)(() => gridView.DataSource = dataSource));
 					});
@@ -164,7 +191,7 @@ namespace MoodleLanguageCustomization
 			}
 		}
 
-		private static List<PhpString> ReadPhpStrings(string filePath)
+		private List<PhpString> ReadPhpStrings(string filePath)
 		{
 			StreamReader reader = new StreamReader(filePath);
 			string content = reader.ReadToEnd();
@@ -173,6 +200,20 @@ namespace MoodleLanguageCustomization
 			if (strings[0].Contains("<?php"))
 				strings.RemoveAt(0);
 			return strings.Select(str => new PhpString { Filename = Path.GetFileNameWithoutExtension(filePath), String = str }).ToList();
+		}
+
+		private void ReadCsvFile()
+		{
+			folders = new List<KeyValuePair<string, string>>();
+			using (StreamReader reader = new StreamReader(csv))
+			{
+				string line;
+				while ((line = reader.ReadLine()) != null)
+				{
+					string[] data = line.Split(',');
+					folders.Add(new KeyValuePair<string, string>(data[1], data[0]));
+				}
+			}
 		}
 	}
 }

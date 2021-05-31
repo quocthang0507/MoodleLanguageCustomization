@@ -44,12 +44,13 @@ namespace MoodleLanguageCustomization
 			this.tbxPHPPath = new System.Windows.Forms.TextBox();
 			this.label2 = new System.Windows.Forms.Label();
 			this.label1 = new System.Windows.Forms.Label();
+			this.gridView = new System.Windows.Forms.DataGridView();
 			this.openPHPFileDialog = new System.Windows.Forms.OpenFileDialog();
 			this.saveExcelFileDialog = new System.Windows.Forms.SaveFileDialog();
 			this.openExcelFileDialog = new System.Windows.Forms.OpenFileDialog();
 			this.savePHPFileDialog = new System.Windows.Forms.SaveFileDialog();
 			this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
-			this.gridView = new System.Windows.Forms.DataGridView();
+			this.lblPercent = new System.Windows.Forms.Label();
 			this.tableLayoutPanel1.SuspendLayout();
 			this.groupBox1.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.gridView)).BeginInit();
@@ -72,6 +73,7 @@ namespace MoodleLanguageCustomization
 			// 
 			// groupBox1
 			// 
+			this.groupBox1.Controls.Add(this.lblPercent);
 			this.groupBox1.Controls.Add(this.label6);
 			this.groupBox1.Controls.Add(this.label5);
 			this.groupBox1.Controls.Add(this.label4);
@@ -213,6 +215,19 @@ namespace MoodleLanguageCustomization
 			this.label1.TabIndex = 0;
 			this.label1.Text = "1) Input file (PHP):";
 			// 
+			// gridView
+			// 
+			this.gridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+			this.gridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+			this.gridView.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.gridView.Location = new System.Drawing.Point(3, 203);
+			this.gridView.MultiSelect = false;
+			this.gridView.Name = "gridView";
+			this.gridView.ReadOnly = true;
+			this.gridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+			this.gridView.Size = new System.Drawing.Size(978, 355);
+			this.gridView.TabIndex = 2;
+			// 
 			// openPHPFileDialog
 			// 
 			this.openPHPFileDialog.FileName = "Select a PHP file";
@@ -235,18 +250,15 @@ namespace MoodleLanguageCustomization
 			this.savePHPFileDialog.Filter = "PHP file (*.php)|*.php";
 			this.savePHPFileDialog.Title = "Save PHP file";
 			// 
-			// gridView
+			// lblPercent
 			// 
-			this.gridView.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-			this.gridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-			this.gridView.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.gridView.Location = new System.Drawing.Point(3, 203);
-			this.gridView.MultiSelect = false;
-			this.gridView.Name = "gridView";
-			this.gridView.ReadOnly = true;
-			this.gridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-			this.gridView.Size = new System.Drawing.Size(978, 355);
-			this.gridView.TabIndex = 2;
+			this.lblPercent.Font = new System.Drawing.Font("Microsoft Sans Serif", 30F);
+			this.lblPercent.Location = new System.Drawing.Point(801, 76);
+			this.lblPercent.Name = "lblPercent";
+			this.lblPercent.Size = new System.Drawing.Size(168, 46);
+			this.lblPercent.TabIndex = 10;
+			this.lblPercent.Text = "0%";
+			this.lblPercent.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
 			// 
 			// MainForm
 			// 
@@ -288,6 +300,7 @@ namespace MoodleLanguageCustomization
 		private System.Windows.Forms.Button btnOpenFolder;
 		private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
 		private System.Windows.Forms.DataGridView gridView;
+		private System.Windows.Forms.Label lblPercent;
 	}
 }
 
